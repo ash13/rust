@@ -60,8 +60,7 @@ dialect of EBNF supported by common automated LL(k) parsing tools such as
 `llgen`, rather than the dialect given in ISO 14977. The dialect can be
 defined self-referentially as follows:
 
-~~~~~~~~ {.ebnf .notation}
-
+~~~ {.ebnf .notation}
 grammar : rule + ;
 rule    : nonterminal ':' productionrule ';' ;
 productionrule : production [ '|' production ] * ;
@@ -69,8 +68,7 @@ production : term * ;
 term : element repeats ;
 element : LITERAL | IDENTIFIER | '[' productionrule ']' ;
 repeats : [ '*' | '+' ] NUMBER ? | NUMBER ? | '?' ;
-
-~~~~~~~~
+~~~
 
 Where:
 
@@ -110,7 +108,6 @@ DFA, operating over the disjunction of all such string table entries.
 When such a string enclosed in double-quotes (`"`) occurs inside the
 grammar, it is an implicit reference to a single member of such a string table
 production. See [tokens](#tokens) for more information.
-
 
 # Lexical structure
 
@@ -153,12 +150,12 @@ Some productions are defined by exclusion of particular Unicode characters:
 
 ## Comments
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 comment : block_comment | line_comment ;
 block_comment : "/*" block_comment_body * '*' + '/' ;
 block_comment_body : non_star * | '*' + non_slash_or_star ;
 line_comment : "//" non_eol * ;
-~~~~~~~~
+~~~
 
 Comments in Rust code follow the general C++ style of line and block-comment forms,
 with no nesting of block-comment delimiters.
@@ -172,10 +169,10 @@ Non-doc comments are interpreted as a form of whitespace.
 
 ## Whitespace
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 whitespace_char : '\x20' | '\x09' | '\x0a' | '\x0d' ;
 whitespace : [ whitespace_char | comment ] + ;
-~~~~~~~~
+~~~
 
 The `whitespace_char` production is any nonempty Unicode string consisting of any
 of the following Unicode characters: `U+0020` (space, `' '`), `U+0009` (tab,
@@ -189,10 +186,10 @@ with any other legal whitespace element, such as a single space character.
 
 ## Tokens
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 simple_token : keyword | unop | binop ;
 token : simple_token | ident | literal | symbol | whitespace token ;
-~~~~~~~~
+~~~
 
 Tokens are primitive productions in the grammar defined by regular
 (non-recursive) languages. "Simple" tokens are given in [string table
@@ -203,7 +200,7 @@ grammar as double-quoted strings. Other tokens have exact rules given.
 
 The keywords are the following strings:
 
-~~~~~~~~ {.keyword}
+~~~ {.keyword}
 as
 break
 do
@@ -218,7 +215,7 @@ self static struct super
 true trait type
 unsafe use
 while
-~~~~~~~~
+~~~
 
 Each of these keywords has special meaning in its grammar,
 and all of them are excluded from the `ident` rule.
@@ -231,13 +228,13 @@ evaluates to, rather than referring to it by name or some other evaluation
 rule. A literal is a form of constant expression, so is evaluated (primarily)
 at compile time.
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 literal : string_lit | char_lit | num_lit ;
-~~~~~~~~
+~~~
 
 #### Character and string literals
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 char_lit : '\x27' char_body '\x27' ;
 string_lit : '"' string_body * '"' | 'r' raw_string ;
 
@@ -260,7 +257,7 @@ hex_digit : 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 dec_digit : '0' | nonzero_dec ;
 nonzero_dec: '1' | '2' | '3' | '4'
            | '5' | '6' | '7' | '8' | '9' ;
-~~~~~~~~
+~~~
 
 A _character literal_ is a single Unicode character enclosed within two
 `U+0027` (single-quote) characters, with the exception of `U+0027` itself,
@@ -318,7 +315,7 @@ r##"foo #"# bar"##;                // foo #"# bar
 
 #### Number literals
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 
 num_lit : nonzero_dec [ dec_digit | '_' ] * num_suffix ?
         | '0' [       [ dec_digit | '_' ] + num_suffix ?
@@ -335,7 +332,7 @@ float_suffix : [ exponent | '.' dec_lit exponent ? ] ? float_suffix_ty ? ;
 float_suffix_ty : 'f' [ '3' '2' | '6' '4' ] ;
 exponent : ['E' | 'e'] ['-' | '+' ] ? dec_lit ;
 dec_lit : [ dec_digit | '_' ] + ;
-~~~~~~~~
+~~~
 
 A _number literal_ is either an _integer literal_ or a _floating-point
 literal_. The grammar for recognizing the two kinds of literals is mixed,
@@ -371,7 +368,7 @@ error.
 
 Examples of integer literals of various forms:
 
-~~~~
+~~~
 123; 0xff00;                       // type determined by program context
                                    // defaults to int in absence of type
                                    // information
@@ -380,7 +377,7 @@ Examples of integer literals of various forms:
 123_u;                             // type uint
 0xff_u8;                           // type u8
 0b1111_1111_1001_0000_i32;         // type i32
-~~~~
+~~~
 
 ##### Floating-point literals
 
@@ -399,12 +396,12 @@ floating point types).
 
 Examples of floating-point literals of various forms:
 
-~~~~
+~~~
 123.0;                             // type f64
 0.1;                               // type f64
 0.1f32;                            // type f32
 12E+99_f64;                        // type f64
-~~~~
+~~~
 
 ##### Unit and boolean literals
 
@@ -413,11 +410,11 @@ The two values of the boolean type are written `true` and `false`.
 
 ### Symbols
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 symbol : "::" "->"
        | '#' | '[' | ']' | '(' | ')' | '{' | '}'
        | ',' | ';' ;
-~~~~~~~~
+~~~
 
 Symbols are a general class of printable [token](#tokens) that play structural
 roles in a variety of grammar productions. They are catalogued here for
@@ -428,8 +425,7 @@ operators](#binary-operator-expressions), or [keywords](#keywords).
 
 ## Paths
 
-~~~~~~~~ {.ebnf .gram}
-
+~~~ {.ebnf .gram}
 expr_path : ident [ "::" expr_path_tail ] + ;
 expr_path_tail : '<' type_expr [ ',' type_expr ] + '>'
                | expr_path ;
@@ -437,8 +433,7 @@ expr_path_tail : '<' type_expr [ ',' type_expr ] + '>'
 type_path : ident [ type_path_tail ] + ;
 type_path_tail : '<' type_expr [ ',' type_expr ] + '>'
                | "::" type_path ;
-
-~~~~~~~~
+~~~
 
 A _path_ is a sequence of one or more path components _logically_ separated by
 a namespace qualifier (`::`). If a path consists of only one component, it may
@@ -451,10 +446,10 @@ across crates; an item's canonical path merely identifies it within the crate.
 
 Two examples of simple paths consisting of only identifier components:
 
-~~~~{.ignore}
+~~~ {.ignore}
 x;
 x::y::z;
-~~~~
+~~~
 
 Path components are usually [identifiers](#identifiers), but the trailing
 component of a path may be an angle-bracket-enclosed list of type
@@ -465,14 +460,14 @@ expression context, the final namespace qualifier is omitted.
 
 Two examples of paths with type arguments:
 
-~~~~
+~~~
 # use std::hashmap::HashMap;
 # fn f() {
 # fn id<T>(t: T) -> T { t }
 type t = HashMap<int,~str>;  // Type arguments used in a type expression
 let x = id::<int>(10);         // Type arguments used in a call expression
 # }
-~~~~
+~~~
 
 # Syntax extensions
 
@@ -495,8 +490,7 @@ with values. `proto!` is an item, defining a new name.
 
 ## Macros
 
-~~~~~~~~ {.ebnf .gram}
-
+~~~ {.ebnf .gram}
 expr_macro_rules : "macro_rules" '!' ident '(' macro_rule * ')'
 macro_rule : '(' matcher * ')' "=>" '(' transcriber * ')' ';'
 matcher : '(' matcher * ')' | '[' matcher * ']'
@@ -507,8 +501,7 @@ transcriber : '(' transcriber * ')' | '[' transcriber * ']'
             | '{' transcriber * '}' | '$' ident
             | '$' '(' transcriber * ')' sep_token? [ '*' | '+' ]
             | non_special_token
-
-~~~~~~~~
+~~~
 
 User-defined syntax extensions are called "macros",
 and the `macro_rules` syntax extension defines them.
@@ -570,7 +563,6 @@ index operation and fail. Adding a separator can solve this problem.
 2. The parser must have eliminated all ambiguity by the time it reaches a `$` _name_ `:` _designator_.
 This requirement most often affects name-designator pairs when they occur at the beginning of, or immediately after, a `$(...)*`; requiring a distinctive token in front can solve the problem.
 
-
 ## Syntax extensions useful for the macro author
 
 * `log_syntax!` : print out the arguments at compile time
@@ -611,7 +603,7 @@ and may optionally begin with any number of `attributes` that apply to the conta
 Attributes on the anonymous crate module define important metadata that influences
 the behavior of the compiler.
 
-~~~~~~~~
+~~~
 // Linkage attributes
 #[ link(name = "projx",
         vers = "2.5",
@@ -627,11 +619,10 @@ the behavior of the compiler.
 
 // Turn on a warning
 #[ warn(non_camel_case_types) ];
-~~~~~~~~
+~~~
 
 A crate that contains a `main` function can be compiled to an executable.
 If a `main` function is present, its return type must be [`unit`](#primitive-types) and it must take no arguments.
-
 
 # Items and attributes
 
@@ -640,10 +631,10 @@ each of which may have some number of [attributes](#attributes) attached to it.
 
 ## Items
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 item : mod_item | fn_item | type_item | struct_item | enum_item
      | static_item | trait_item | impl_item | extern_block ;
-~~~~~~~~
+~~~
 
 An _item_ is a component of a crate; some module items can be defined in crate
 files, but most are defined in source files. Items are organized within a
@@ -688,10 +679,10 @@ That is, Rust has no notion of type abstraction: there are no first-class "foral
 
 ### Modules
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 mod_item : "mod" ident ( ';' | '{' mod '}' );
 mod : [ view_item | item ] * ;
-~~~~~~~~
+~~~
 
 A module is a container for zero or more [view items](#view-items) and zero or
 more [items](#items). The view items manage the visibility of the items
@@ -704,7 +695,7 @@ of modules making up a crate. Modules can nest arbitrarily.
 
 An example of a module:
 
-~~~~~~~~
+~~~
 mod math {
     type complex = (f64, f64);
     fn sin(f: f64) -> f64 {
@@ -720,7 +711,7 @@ mod math {
 # fail2!();
     }
 }
-~~~~~~~~
+~~~
 
 Modules and types share the same namespace.
 Declaring a named type that has the same name as a module in scope is forbidden:
@@ -756,9 +747,9 @@ mod task {
 
 #### View items
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 view_item : extern_mod_decl | use_decl ;
-~~~~~~~~
+~~~
 
 A view item manages the namespace of a module.
 View items do not define new items, but rather, simply change other items' visibility.
@@ -769,11 +760,11 @@ There are several kinds of view item:
 
 ##### Extern mod declarations
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 extern_mod_decl : "extern" "mod" ident [ '(' link_attrs ')' ] ? [ '=' string_lit ] ? ;
 link_attrs : link_attr [ ',' link_attrs ] + ;
 link_attr : ident '=' literal ;
-~~~~~~~~
+~~~
 
 An _`extern mod` declaration_ specifies a dependency on an external crate.
 The external crate is then bound into the declaring scope
@@ -801,7 +792,7 @@ is that the name `a` should be taken as a reference to the crate whose absolute 
 
 Four examples of `extern mod` declarations:
 
-~~~~~~~~{.xfail-test}
+~~~ {.xfail-test}
 extern mod pcre (uuid = "54aba0f8-a7b1-4beb-92f1-4cf625264841");
 
 extern mod extra; // equivalent to: extern mod extra ( name = "extra" );
@@ -809,18 +800,18 @@ extern mod extra; // equivalent to: extern mod extra ( name = "extra" );
 extern mod rustextra (name = "extra"); // linking to 'extra' under another name
 
 extern mod complicated_mod = "some-file/in/the-rust/path";
-~~~~~~~~
+~~~
 
 ##### Use declarations
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 use_decl : "pub" ? "use" ident [ '=' path
                           | "::" path_glob ] ;
 
 path_glob : ident [ "::" path_glob ] ?
           | '*'
           | '{' ident [ ',' ident ] * '}'
-~~~~~~~~
+~~~
 
 A _use declaration_ creates one or more local name bindings synonymous
 with some other [path](#paths).
@@ -839,7 +830,7 @@ Use declarations support a number of convenient shortcuts:
 
 An example of `use` declarations:
 
-~~~~
+~~~
 use std::num::sin;
 use std::option::{Some, None};
 
@@ -852,7 +843,7 @@ fn main() {
     // Equivalent to 'foo(~[std::option::Some(1.0), std::option::None]);'
     foo(~[Some(1.0), None]);
 }
-~~~~
+~~~
 
 Like items, `use` declarations are private to the containing module, by default.
 Also like items, a `use` declaration can be public, if qualified by the `pub` keyword.
@@ -863,7 +854,7 @@ If a sequence of such redirections form a cycle or cannot be resolved unambiguou
 they represent a compile-time error.
 
 An example of re-exporting:
-~~~~
+~~~
 # fn main() { }
 mod quux {
     pub use quux::foo::*;
@@ -873,7 +864,7 @@ mod quux {
         pub fn baz() { }
     }
 }
-~~~~
+~~~
 
 In this example, the module `quux` re-exports all of the public names defined in `foo`.
 
@@ -886,7 +877,7 @@ All rules regarding accessing declared modules in `use` declarations applies to 
 and `extern mod` declarations.
 
 An example of what will and will not work for `use` items:
-~~~~
+~~~
 # #[allow(unused_imports)];
 use foo::extra;          // good: foo is at the root of the crate
 use foo::baz::foobaz;    // good: foo is at the root of the crate
@@ -910,7 +901,7 @@ mod foo {
 }
 
 fn main() {}
-~~~~
+~~~
 
 ### Functions
 
@@ -931,11 +922,11 @@ final-expression.
 
 An example of a function:
 
-~~~~
+~~~
 fn add(x: int, y: int) -> int {
     return x + y;
 }
-~~~~
+~~~
 
 As with `let` bindings, function arguments are irrefutable patterns,
 so any pattern that is valid in a let binding is also valid as an argument.
@@ -952,7 +943,7 @@ appear in its signature. Each type parameter must be explicitly
 declared, in an angle-bracket-enclosed, comma-separated list following
 the function name.
 
-~~~~ {.xfail-test}
+~~~ {.xfail-test}
 fn iter<T>(seq: &[T], f: &fn(T)) {
     for elt in seq.iter() { f(elt); }
 }
@@ -961,7 +952,7 @@ fn map<T, U>(seq: &[T], f: &fn(T) -> U) -> ~[U] {
     for elt in seq.iter() { acc.push(f(elt)); }
     acc
 }
-~~~~
+~~~
 
 Inside the function signature and body, the name of the type parameter
 can be used as a type name.
@@ -981,9 +972,9 @@ Since a parameter type is opaque to the generic function, the set of
 operations that can be performed on it is limited. Values of parameter
 type can only be moved, not copied.
 
-~~~~
+~~~
 fn id<T>(x: T) -> T { x }
-~~~~
+~~~
 
 Similarly, [trait](#traits) bounds can be specified for type
 parameters to allow methods with that trait to be called on values
@@ -1066,12 +1057,12 @@ This is a list of behaviour not considered *unsafe* in Rust terms, but that may 
 A special kind of function can be declared with a `!` character where the
 output slot type would normally be. For example:
 
-~~~~
+~~~
 fn my_err(s: &str) -> ! {
     info2!("{}", s);
     fail2!();
 }
-~~~~
+~~~
 
 We call such functions "diverging" because they never return a value to the
 caller. Every control path in a diverging function must end with a
@@ -1086,7 +1077,7 @@ with a [`return`](#return-expressions) or diverging expression. So, if `my_err`
 were declared without the `!` annotation, the following code would not
 typecheck:
 
-~~~~
+~~~
 # fn my_err(s: &str) -> ! { fail2!() }
 
 fn f(i: int) -> int {
@@ -1097,7 +1088,7 @@ fn f(i: int) -> int {
      my_err("Bad number!");
    }
 }
-~~~~
+~~~
 
 This will not compile without the `!` annotation on `my_err`,
 since the `else` branch of the conditional in `f` does not return an `int`,
@@ -1159,29 +1150,29 @@ A _structure_ is a nominal [structure type](#structure-types) defined with the k
 
 An example of a `struct` item and its use:
 
-~~~~
+~~~
 struct Point {x: int, y: int}
 let p = Point {x: 10, y: 11};
 let px: int = p.x;
-~~~~
+~~~
 
 A _tuple structure_ is a nominal [tuple type](#tuple-types), also defined with the keyword `struct`.
 For example:
 
-~~~~
+~~~
 struct Point(int, int);
 let p = Point(10, 11);
 let px: int = match p { Point(x, _) => x };
-~~~~
+~~~
 
 A _unit-like struct_ is a structure without any fields, defined by leaving off the list of fields entirely.
 Such types will have a single value, just like the [unit value `()`](#unit-and-boolean-literals) of the unit type.
 For example:
 
-~~~~
+~~~
 struct Cookie;
 let c = [Cookie, Cookie, Cookie, Cookie];
-~~~~
+~~~
 
 ### Enumerations
 
@@ -1192,7 +1183,7 @@ Enumerations are declared with the keyword `enum`.
 
 An example of an `enum` item and its use:
 
-~~~~
+~~~
 enum Animal {
   Dog,
   Cat
@@ -1200,10 +1191,10 @@ enum Animal {
 
 let mut a: Animal = Dog;
 a = Cat;
-~~~~
+~~~
 
 Enumeration constructors can have either named or unnamed fields:
-~~~~
+~~~
 enum Animal {
     Dog (~str, f64),
     Cat { name: ~str, weight: f64 }
@@ -1211,16 +1202,16 @@ enum Animal {
 
 let mut a: Animal = Dog(~"Cocoa", 37.2);
 a = Cat{ name: ~"Spotty", weight: 2.7 };
-~~~~
+~~~
 
 In this example, `Cat` is a _struct-like enum variant_,
 whereas `Dog` is simply called an enum variant.
 
 ### Static items
 
-~~~~~~~~ {.ebnf .gram}
+~~~ {.ebnf .gram}
 static_item : "static" ident ':' type '=' expr ';' ;
-~~~~~~~~
+~~~
 
 A *static item* is a named _constant value_ stored in the global data section of a crate.
 Immutable static items are stored in the read-only data section.
@@ -1234,7 +1225,7 @@ The type may be ```bool```, ```char```, a number, or a type derived from those p
 The derived types are borrowed pointers with the `'static` lifetime,
 fixed-size arrays, tuples, and structs.
 
-~~~~
+~~~
 static BIT1: uint = 1 << 0;
 static BIT2: uint = 1 << 1;
 
@@ -1250,7 +1241,7 @@ static bits_n_strings: BitsNStrings<'static> = BitsNStrings {
     mybits: BITS,
     mystring: STRING
 };
-~~~~
+~~~
 
 #### Mutable statics
 
@@ -1284,7 +1275,6 @@ unsafe fn bump_levels_unsafe1() -> uint {
 unsafe fn bump_levels_unsafe2() -> uint {
     return atomic_add(&mut LEVELS, 1);
 }
-
 ~~~
 
 ### Traits
@@ -1298,7 +1288,7 @@ or constrained by some other trait.
 
 Traits are implemented for specific types through separate [implementations](#implementations).
 
-~~~~
+~~~
 # type Surface = int;
 # type BoundingBox = int;
 
@@ -1306,7 +1296,7 @@ trait Shape {
     fn draw(&self, Surface);
     fn bounding_box(&self) -> BoundingBox;
 }
-~~~~
+~~~
 
 This defines a trait with two methods.
 All values that have [implementations](#implementations) of this trait in scope can have their `draw` and `bounding_box` methods called,
@@ -1315,13 +1305,13 @@ using `value.bounding_box()` [syntax](#method-call-expressions).
 Type parameters can be specified for a trait to make it generic.
 These appear after the trait name, using the same syntax used in [generic functions](#generic-functions).
 
-~~~~
+~~~
 trait Seq<T> {
    fn len(&self) -> uint;
    fn elt_at(&self, n: uint) -> T;
    fn iter(&self, &fn(T));
 }
-~~~~
+~~~
 
 Generic functions may use traits as _bounds_ on their type parameters.
 This will have two effects: only types that have the trait may instantiate the parameter,
@@ -1329,7 +1319,7 @@ and within the generic function,
 the methods of the trait can be called on values that have the parameter's type.
 For example:
 
-~~~~
+~~~
 # type Surface = int;
 # trait Shape { fn draw(&self, Surface); }
 
@@ -1337,20 +1327,20 @@ fn draw_twice<T: Shape>(surface: Surface, sh: T) {
     sh.draw(surface);
     sh.draw(surface);
 }
-~~~~
+~~~
 
 Traits also define an [object type](#object-types) with the same name as the trait.
 Values of this type are created by [casting](#type-cast-expressions) pointer values
 (pointing to a type for which an implementation of the given trait is in scope)
 to pointers to the trait name, used as a type.
 
-~~~~
+~~~
 # trait Shape { }
 # impl Shape for int { }
 # let mycircle = 0;
 
 let myshape: @Shape = @mycircle as @Shape;
-~~~~
+~~~
 
 The resulting value is a managed box containing the value that was cast,
 along with information that identifies the methods of the implementation that was used.
@@ -1366,7 +1356,7 @@ The way to refer to the name of a static method is to qualify it with the trait 
 treating the trait name like a module.
 For example:
 
-~~~~
+~~~
 trait Num {
     fn from_int(n: int) -> Self;
 }
@@ -1374,14 +1364,14 @@ impl Num for f64 {
     fn from_int(n: int) -> f64 { n as f64 }
 }
 let x: f64 = Num::from_int(42);
-~~~~
+~~~
 
 Traits may inherit from other traits. For example, in
 
-~~~~
+~~~
 trait Shape { fn area() -> f64; }
 trait Circle : Shape { fn radius() -> f64; }
-~~~~
+~~~
 
 the syntax `Circle : Shape` means that types that implement `Circle` must also have an implementation for `Shape`.
 Multiple supertraits are separated by spaces, `trait Circle : Shape Eq { }`.
@@ -1420,7 +1410,7 @@ An _implementation_ is an item that implements a [trait](#traits) for a specific
 
 Implementations are defined with the keyword `impl`.
 
-~~~~
+~~~
 # struct Point {x: f64, y: f64};
 # type Surface = int;
 # struct BoundingBox {x: f64, y: f64, width: f64, height: f64};
@@ -1440,7 +1430,7 @@ impl Shape for Circle {
          width: 2.0 * r, height: 2.0 * r}
     }
 }
-~~~~
+~~~
 
 It is possible to define an implementation without referring to a trait.
 The methods in such an implementation can only be used
@@ -1457,7 +1447,7 @@ An implementation can take type parameters,
 which can be different from the type parameters taken by the trait it implements.
 Implementation parameters are written after the `impl` keyword.
 
-~~~~
+~~~
 # trait Seq<T> { }
 
 impl<T> Seq<T> for ~[T] {
@@ -1466,7 +1456,7 @@ impl<T> Seq<T> for ~[T] {
 impl Seq<bool> for u32 {
    /* Treat the integer as a sequence of bits */
 }
-~~~~
+~~~
 
 ### External blocks
 
@@ -1505,14 +1495,14 @@ By default external blocks assume that the library they are calling
 uses the standard C "cdecl" ABI.  Other ABIs may be specified using
 an `abi` string, as shown here:
 
-~~~{.xfail-test}
+~~~ {.xfail-test}
 // Interface to the Windows API
 extern "stdcall" { }
 ~~~
 
 The `link_name` attribute allows the name of the library to be specified.
 
-~~~{.xfail-test}
+~~~ {.xfail-test}
 #[link_name = "crypto"]
 extern { }
 ~~~
@@ -1699,12 +1689,12 @@ import public items from their destination, not private items.
 
 ## Attributes
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 attribute : '#' '[' attr_list ']' ;
 attr_list : attr [ ',' attr_list ]*
 attr : ident [ '=' literal
              | '(' attr_list ')' ] ? ;
-~~~~~~~~
+~~~
 
 Static entities in Rust -- crates, modules and items -- may have _attributes_
 applied to them. ^[Attributes in Rust are modeled on Attributes in ECMA-335,
@@ -1721,7 +1711,7 @@ within. Attributes that are not terminated by a semi-colon apply to the next ent
 
 An example of attributes:
 
-~~~~~~~~{.xfail-test}
+~~~ {.xfail-test}
 // General metadata applied to the enclosing module or crate.
 #[license = "BSD"];
 
@@ -1740,7 +1730,7 @@ mod bar {
 // A lint attribute used to suppress a warning/error
 #[allow(non_camel_case_types)]
 pub type int8_t = i8;
-~~~~~~~~
+~~~
 
 > **Note:** In future versions of Rust, user-provided extensions to the compiler will be able to interpret attributes.
 > When this facility is provided, the compiler will distinguish between language-reserved and user-available attributes.
@@ -1779,7 +1769,7 @@ For any lint check `C`:
 The lint checks supported by the compiler can be found via `rustc -W help`,
 along with their default settings.
 
-~~~{.xfail-test}
+~~~ {.xfail-test}
 mod m1 {
     // Missing documentation is ignored here
     #[allow(missing_doc)]
@@ -1798,7 +1788,7 @@ mod m1 {
 This example shows how one can use `allow` and `warn` to toggle
 a particular check on and off.
 
-~~~{.xfail-test}
+~~~ {.xfail-test}
 #[warn(missing_doc)]
 mod m2{
     #[allow(missing_doc)]
@@ -1820,7 +1810,7 @@ mod m2{
 This example shows how one can use `forbid` to disallow uses
 of `allow` for that lint check.
 
-~~~{.xfail-test}
+~~~ {.xfail-test}
 #[forbid(missing_doc)]
 mod m3 {
     // Attempting to toggle warning signals an error here
@@ -2123,13 +2113,12 @@ declaring the item outside the statement block.
 Note: there is no implicit capture of the function's dynamic environment when
 declaring a function-local item.
 
-
 #### Slot declarations
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 let_decl : "let" pat [':' type ] ? [ init ] ? ';' ;
 init : [ '=' ] expr ;
-~~~~~~~~
+~~~
 
 A _slot declaration_ introduces a new set of slots, given by a pattern.
 The pattern may be followed by a type annotation, and/or an initializer expression.
@@ -2194,19 +2183,18 @@ or values that implement the special trait `Drop`,
 the variable is moved.
 All other types are copied.
 
-
 ### Literal expressions
 
 A _literal expression_ consists of one of the [literal](#literals)
 forms described earlier. It directly describes a number, character,
 string, boolean value, or the unit value.
 
-~~~~~~~~ {.literals}
+~~~ {.literals}
 ();        // unit type
 "hello";   // string type
 '5';       // character type
 5;         // integer type
-~~~~~~~~
+~~~
 
 ### Path expressions
 
@@ -2219,22 +2207,22 @@ Tuples are written by enclosing one or more comma-separated
 expressions in parentheses. They are used to create [tuple-typed](#tuple-types)
 values.
 
-~~~~~~~~ {.tuple}
+~~~ {.tuple}
 (0,);
 (0.0, 4.5);
 ("a", 4u, true);
-~~~~~~~~
+~~~
 
 ### Structure expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 struct_expr : expr_path '{' ident ':' expr
                       [ ',' ident ':' expr ] *
                       [ ".." expr ] '}' |
               expr_path '(' expr
                       [ ',' expr ] * ')' |
               expr_path
-~~~~~~~~
+~~~
 
 There are several forms of structure expressions.
 A _structure expression_ consists of the [path](#paths) of a [structure item](#structures),
@@ -2252,7 +2240,7 @@ A _unit-like structure expression_ consists only of the [path](#paths) of a [str
 
 The following are examples of structure expressions:
 
-~~~~
+~~~
 # struct Point { x: f64, y: f64 }
 # struct TuplePoint(f64, f64);
 # mod game { pub struct User<'self> { name: &'self str, age: uint, score: uint } }
@@ -2261,7 +2249,7 @@ Point {x: 10.0, y: 20.0};
 TuplePoint(10.0, 20.0);
 let u = game::User {name: "Joe", age: 35, score: 100_000};
 some_fn::<Cookie>(Cookie);
-~~~~
+~~~
 
 A structure expression forms a new value of the named structure type.
 Note that for a given *unit-like* structure type, this will always be the same value.
@@ -2273,46 +2261,45 @@ The entire expression denotes the result of allocating a new structure
 with the given values for the fields that were explicitly specified
 and the values in the base record for all other fields.
 
-~~~~
+~~~
 # struct Point3d { x: int, y: int, z: int }
 let base = Point3d {x: 1, y: 2, z: 3};
 Point3d {y: 0, z: 10, .. base};
-~~~~
+~~~
 
 ### Record expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 rec_expr : '{' ident ':' expr
                [ ',' ident ':' expr ] *
                [ ".." expr ] '}'
-~~~~~~~~
+~~~
 
 ### Method-call expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 method_call_expr : expr '.' ident paren_expr_list ;
-~~~~~~~~
+~~~
 
 A _method call_ consists of an expression followed by a single dot, an identifier, and a parenthesized expression-list.
 Method calls are resolved to methods on specific traits,
 either statically dispatching to a method if the exact `self`-type of the left-hand-side is known,
 or dynamically dispatching if the left-hand-side expression is an indirect [object type](#object-types).
 
-
 ### Field expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 field_expr : expr '.' ident
-~~~~~~~~
+~~~
 
 A _field expression_ consists of an expression followed by a single dot and an identifier,
 when not immediately followed by a parenthesized expression-list (the latter is a [method call expression](#method-call-expressions)).
 A field expression denotes a field of a [structure](#structure-types).
 
-~~~~~~~~ {.field}
+~~~ {.field}
 myrecord.myfield;
 {a: 10, b: 20}.a;
-~~~~~~~~
+~~~
 
 A field access on a record is an [lvalue](#lvalues-rvalues-and-temporaries) referring to the value of that field.
 When the field is mutable, it can be [assigned](#assignment-expressions) to.
@@ -2320,14 +2307,13 @@ When the field is mutable, it can be [assigned](#assignment-expressions) to.
 When the type of the expression to the left of the dot is a pointer to a record or structure,
 it is automatically dereferenced to make the field access possible.
 
-
 ### Vector expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 vec_expr : '[' "mut" ? vec_elems? ']'
 
 vec_elems : [expr [',' expr]*] | [expr ',' ".." expr]
-~~~~~~~~
+~~~
 
 A [_vector_](#vector-types) _expression_ is written by enclosing zero or
 more comma-separated expressions of uniform type in square brackets.
@@ -2336,19 +2322,18 @@ In the `[expr ',' ".." expr]` form, the expression after the `".."`
 must be a constant expression that can be evaluated at compile time, such
 as a [literal](#literals) or a [static item](#static-items).
 
-~~~~
+~~~
 [1, 2, 3, 4];
 ["a", "b", "c", "d"];
 [0, ..128];             // vector with 128 zeros
 [0u8, 0u8, 0u8, 0u8];
-~~~~
+~~~
 
 ### Index expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 idx_expr : expr '[' expr ']'
-~~~~~~~~
-
+~~~
 
 [Vector](#vector-types)-typed expressions can be indexed by writing a
 square-bracket-enclosed expression (the index) after them. When the
@@ -2358,7 +2343,7 @@ Indices are zero-based, and may be of any integral type. Vector access
 is bounds-checked at run-time. When the check fails, it will put the
 task in a _failing state_.
 
-~~~~
+~~~
 # use std::task;
 # do task::spawn_unlinked {
 
@@ -2366,7 +2351,7 @@ task in a _failing state_.
 (["a", "b"])[10]; // fails
 
 # }
-~~~~
+~~~
 
 ### Unary operator expressions
 
@@ -2395,9 +2380,9 @@ before the expression they apply to.
 
 ### Binary operator expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 binop_expr : expr binop expr ;
-~~~~~~~~
+~~~
 
 Binary operators expressions are given in terms of
 [operator precedence](#operator-precedence).
@@ -2484,7 +2469,6 @@ The default meaning of the operators on standard types is given here.
   : Greater than or equal.
     Calls the `ge` method on the `std::cmp::Ord` trait.
 
-
 #### Type cast expressions
 
 A type cast expression is denoted with the binary operator `as`.
@@ -2498,7 +2482,7 @@ Any other cast is unsupported and will fail to compile.
 
 An example of an `as` expression:
 
-~~~~
+~~~
 # fn sum(v: &[f64]) -> f64 { 0.0 }
 # fn len(v: &[f64]) -> int { 0 }
 
@@ -2507,7 +2491,7 @@ fn avg(v: &[f64]) -> f64 {
   let sz: f64 = len(v) as f64;
   return sum / sz;
 }
-~~~~
+~~~
 
 #### Assignment expressions
 
@@ -2516,12 +2500,12 @@ equals sign (`=`) and an [rvalue](#lvalues-rvalues-and-temporaries) expression.
 
 Evaluating an assignment expression [either copies or moves](#moved-and-copied-types) its right-hand operand to its left-hand operand.
 
-~~~~
+~~~
 # let mut x = 0;
 # let y = 0;
 
 x = y;
-~~~~
+~~~
 
 #### Compound assignment expressions
 
@@ -2537,7 +2521,7 @@ Any such expression always has the [`unit`](#primitive-types) type.
 The precedence of Rust binary operators is ordered as follows, going
 from strong to weak:
 
-~~~~ {.precedence}
+~~~ {.precedence}
 * / %
 as
 + -
@@ -2550,7 +2534,7 @@ as
 &&
 ||
 =
-~~~~
+~~~
 
 Operators at the same precedence level are evaluated left-to-right. [Unary operators](#unary-operator-expressions)
 have the same precedence level and it is stronger than any of the binary operators'.
@@ -2561,24 +2545,24 @@ An expression enclosed in parentheses evaluates to the result of the enclosed
 expression.  Parentheses can be used to explicitly specify evaluation order
 within an expression.
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 paren_expr : '(' expr ')' ;
-~~~~~~~~
+~~~
 
 An example of a parenthesized expression:
 
-~~~~
+~~~
 let x = (2 + 3) * 4;
-~~~~
+~~~
 
 
 ### Call expressions
 
-~~~~~~~~ {.abnf .gram}
+~~~ {.abnf .gram}
 expr_list : [ expr [ ',' expr ]* ] ? ;
 paren_expr_list : '(' expr_list ')' ;
 call_expr : expr paren_expr_list ;
-~~~~~~~~
+~~~
 
 A _call expression_ invokes a function, providing zero or more input slots and
 an optional reference slot to serve as the function's output, bound to the
@@ -2587,20 +2571,20 @@ then the expression completes.
 
 Some examples of call expressions:
 
-~~~~
+~~~
 # use std::from_str::FromStr;
 # fn add(x: int, y: int) -> int { 0 }
 
 let x: int = add(1, 2);
 let pi: Option<f32> = FromStr::from_str("3.14");
-~~~~
+~~~
 
 ### Lambda expressions
 
-~~~~~~~~ {.abnf .gram}
+~~~ {.abnf .gram}
 ident_list : [ ident [ ',' ident ]* ] ? ;
 lambda_expr : '|' ident_list '|' expr ;
-~~~~~~~~
+~~~
 
 A _lambda expression_ (sometimes called an "anonymous function expression") defines a function and denotes it as a value,
 in a single expression.
@@ -2626,7 +2610,7 @@ from the environment into the lambda expression's captured environment.
 In this example, we define a function `ten_times` that takes a higher-order function argument,
 and call it with a lambda expression as an argument.
 
-~~~~
+~~~
 fn ten_times(f: &fn(int)) {
     let mut i = 0;
     while i < 10 {
@@ -2636,14 +2620,13 @@ fn ten_times(f: &fn(int)) {
 }
 
 ten_times(|j| println!("hello, {}", j));
-
-~~~~
+~~~
 
 ### While loops
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 while_expr : "while" expr '{' block '}' ;
-~~~~~~~~
+~~~
 
 A `while` loop begins by evaluating the boolean loop conditional expression.
 If the loop conditional expression evaluates to `true`, the loop body block
@@ -2652,14 +2635,14 @@ conditional expression evaluates to `false`, the `while` expression completes.
 
 An example:
 
-~~~~
+~~~
 let mut i = 0;
 
 while i < 10 {
     println("hello\n");
     i = i + 1;
 }
-~~~~
+~~~
 
 ### Infinite loops
 
@@ -2667,9 +2650,9 @@ The keyword `loop` in Rust appears both in _loop expressions_ and in _continue e
 A loop expression denotes an infinite loop;
 see [Continue expressions](#continue-expressions) for continue expressions.
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 loop_expr : [ lifetime ':' ] "loop" '{' block '}';
-~~~~~~~~
+~~~
 
 A `loop` expression may optionally have a _label_.
 If a label is present,
@@ -2678,9 +2661,9 @@ See [Break expressions](#break-expressions).
 
 ### Break expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 break_expr : "break" [ lifetime ];
-~~~~~~~~
+~~~
 
 A `break` expression has an optional `label`.
 If the label is absent, then executing a `break` expression immediately terminates the innermost loop enclosing it.
@@ -2691,9 +2674,9 @@ but must enclose it.
 
 ### Continue expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 continue_expr : "loop" [ lifetime ];
-~~~~~~~~
+~~~
 
 A continue expression, written `loop`, also has an optional `label`.
 If the label is absent,
@@ -2708,12 +2691,11 @@ but must enclose it.
 
 A `loop` expression is only permitted in the body of a loop.
 
-
 ### Do expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 do_expr : "do" expr [ '|' ident_list '|' ] ? '{' block '}' ;
-~~~~~~~~
+~~~
 
 A _do expression_ provides a more-familiar block-syntax for a [lambda expression](#lambda-expressions),
 including a special translation of [return expressions](#return-expressions) inside the supplied block.
@@ -2737,7 +2719,7 @@ If the `expr` is a [field expression](#field-expressions), it is parsed as thoug
 
 In this example, both calls to `f` are equivalent:
 
-~~~~
+~~~
 # fn f(f: &fn(int)) { }
 # fn g(i: int) { }
 
@@ -2746,11 +2728,11 @@ f(|j| g(j));
 do f |j| {
     g(j);
 }
-~~~~
+~~~
 
 In this example, both calls to the (binary) function `k` are equivalent:
 
-~~~~
+~~~
 # fn k(x:int, f: &fn(int)) { }
 # fn l(i: int) { }
 
@@ -2759,14 +2741,13 @@ k(3, |j| l(j));
 do k(3) |j| {
    l(j);
 }
-~~~~
-
+~~~
 
 ### For expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 for_expr : "for" pat "in" expr '{' block '}' ;
-~~~~~~~~
+~~~ 
 
 A `for` expression is a syntactic construct for looping
 over elements provided by an implementation of
@@ -2774,7 +2755,7 @@ over elements provided by an implementation of
 
 An example of a for loop over the contents of a vector:
 
-~~~~
+~~~
 # type foo = int;
 # fn bar(f: foo) { }
 # let a = 0;
@@ -2786,26 +2767,26 @@ let v: &[foo] = &[a, b, c];
 for e in v.iter() {
     bar(*e);
 }
-~~~~
+~~~
 
 An example of a for loop over a series of integers:
 
-~~~~
+~~~
 # fn bar(b:uint) { }
 for i in range(0u, 256) {
     bar(i);
 }
-~~~~
+~~~
 
 ### If expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 if_expr : "if" expr '{' block '}'
           else_tail ? ;
 
 else_tail : "else" [ if_expr
                    | '{' block '}' ] ;
-~~~~~~~~
+~~~
 
 An `if` expression is a conditional branch in program control. The form of
 an `if` expression is a condition expression, followed by a consequent
@@ -2818,17 +2799,15 @@ consequent block is skipped and any subsequent `else if` condition is
 evaluated. If all `if` and `else if` conditions evaluate to `false`
 then any `else` block is executed.
 
-
 ### Match expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 match_expr : "match" expr '{' match_arm [ '|' match_arm ] * '}' ;
 
 match_arm : match_pat '=>' [ expr "," | '{' block '}' ] ;
 
 match_pat : pat [ ".." pat ] ? [ "if" expr ] ;
-~~~~~~~~
-
+~~~
 
 A `match` expression branches on a *pattern*. The exact form of matching that
 occurs depends on the pattern. Patterns consist of some combination of
@@ -2841,7 +2820,7 @@ In a pattern whose head expression has an `enum` type, a placeholder (`_`) stand
 *single* data field, whereas a wildcard `*` stands for *all* the fields of a particular
 variant. For example:
 
-~~~~
+~~~
 enum List<X> { Nil, Cons(X, @List<X>) }
 
 let x: List<int> = Cons(10, @Cons(11, @Nil));
@@ -2851,7 +2830,7 @@ match x {
     Cons(*)       => return,
     Nil           => fail2!("empty list")
 }
-~~~~
+~~~
 
 The first pattern matches lists constructed by applying `Cons` to any head value, and a
 tail value of `@Nil`. The second pattern matches _any_ list constructed with `Cons`,
@@ -2866,8 +2845,7 @@ variables in the arm's block, and control enters the block.
 
 An example of an `match` expression:
 
-
-~~~~
+~~~
 # fn process_pair(a: int, b: int) { }
 # fn process_ten() { }
 
@@ -2889,7 +2867,7 @@ match x {
         fail2!();
     }
 }
-~~~~
+~~~
 
 Patterns that bind variables
 default to binding to a copy or move of the matched value
@@ -2913,7 +2891,7 @@ Multiple match patterns may be joined with the `|` operator.
 A range of values may be specified with `..`.
 For example:
 
-~~~~
+~~~
 # let x = 2;
 
 let message = match x {
@@ -2921,7 +2899,7 @@ let message = match x {
   2 .. 9 => "a few",
   _      => "lots"
 };
-~~~~
+~~~
 
 Range patterns only work on scalar types
 (like integers and characters; not like vectors and structs, which have sub-components).
@@ -2932,7 +2910,7 @@ criteria for matching a case. Pattern guards appear after the pattern and
 consist of a bool-typed expression following the `if` keyword. A pattern
 guard may refer to the variables bound within the pattern they follow.
 
-~~~~
+~~~
 # let maybe_digit = Some(0);
 # fn process_digit(i: int) { }
 # fn process_other(i: int) { }
@@ -2942,13 +2920,13 @@ let message = match maybe_digit {
   Some(x) => process_other(x),
   None => fail2!()
 };
-~~~~
+~~~
 
 ### Return expressions
 
-~~~~~~~~{.ebnf .gram}
+~~~ {.ebnf .gram}
 return_expr : "return" expr ? ;
-~~~~~~~~
+~~~
 
 Return expressions are denoted with the keyword `return`. Evaluating a `return`
 expression moves its argument into the output slot of the current
@@ -2957,15 +2935,14 @@ control to the caller frame.
 
 An example of a `return` expression:
 
-~~~~
+~~~
 fn max(a: int, b: int) -> int {
    if a > b {
       return a;
    }
    return b;
 }
-~~~~
-
+~~~
 
 # Type system
 
@@ -2992,7 +2969,6 @@ The primitive types are the following:
 
 The machine types are the following:
 
-
 * The unsigned word types `u8`, `u16`, `u32` and `u64`, with values drawn from
   the integer intervals $[0, 2^8 - 1]$, $[0, 2^{16} - 1]$, $[0, 2^{32} - 1]$ and
   $[0, 2^{64} - 1]$ respectively.
@@ -3017,7 +2993,6 @@ two's complement signed integer type with target-machine-dependent size. Its
 size, in bits, is equal to the size of the rust type `uint` on the same target
 machine.
 
-
 ### Textual types
 
 The types `char` and `str` hold textual data.
@@ -3030,7 +3005,6 @@ represented as a vector of 8-bit unsigned bytes holding a sequence of UTF-8 code
 Since `str` is of unknown size, it is not a _first class_ type,
 but can only be instantiated through a pointer type,
 such as `&str`, `@str` or `~str`.
-
 
 ### Tuple types
 
@@ -3049,13 +3023,12 @@ order specified by the tuple type.
 
 An example of a tuple type and its use:
 
-~~~~
+~~~
 type Pair<'self> = (int,&'self str);
 let p: Pair<'static> = (10,"hello");
 let (a, b) = p;
 assert!(b != "world");
-~~~~
-
+~~~
 
 ### Vector types
 
@@ -3078,15 +3051,14 @@ definite-sized vector contents into a distinct vector of indefinite size.
 
 An example of a vector type and its use:
 
-~~~~
+~~~
 let v: &[int] = &[7, 5, 3];
 let i: int = v[2];
 assert!(i == 3);
-~~~~
+~~~
 
 All in-bounds elements of a vector are always initialized,
 and access to a vector is always bounds-checked.
-
 
 ### Structure types
 
@@ -3127,7 +3099,6 @@ Any `enum` value consumes as much memory as the largest variant constructor for 
 Enum types cannot be denoted *structurally* as types,
 but must be denoted by named reference to an [`enum` item](#enumerations).
 
-
 ### Recursive types
 
 Nominal types -- [enumerations](#enumerated-types) and [structures](#structure-types) -- may be recursive.
@@ -3146,15 +3117,14 @@ Such recursion has restrictions:
 
 An example of a *recursive* type and its use:
 
-~~~~
+~~~
 enum List<T> {
   Nil,
   Cons(T, @List<T>)
 }
 
 let a: List<int> = Cons(7, @Cons(13, @Nil));
-~~~~
-
+~~~
 
 ### Pointer types
 
@@ -3204,7 +3174,6 @@ Raw pointers (`*`)
     they exist to support interoperability with foreign code,
     and writing performance-critical or low-level functions.
 
-
 ### Function types
 
 The function type constructor `fn` forms new function types.
@@ -3213,7 +3182,7 @@ A function type consists of a possibly-empty set of function-type modifiers
 
 An example of a `fn` type:
 
-~~~~~~~~
+~~~
 fn add(x: int, y: int) -> int {
   return x + y;
 }
@@ -3223,7 +3192,7 @@ let mut x = add(5,7);
 type Binop<'self> = &'self fn(int,int) -> int;
 let bo: Binop = add;
 x = bo(5,7);
-~~~~~~~~
+~~~
 
 ### Object types
 
@@ -3241,7 +3210,7 @@ the vtable pointer for the `T` implementation of `R`, and the pointer value of `
 
 An example of an object type:
 
-~~~~~~~~
+~~~
 trait Printable {
   fn to_string(&self) -> ~str;
 }
@@ -3257,7 +3226,7 @@ fn print(a: @Printable) {
 fn main() {
    print(@10 as @Printable);
 }
-~~~~~~~~
+~~~
 
 In this example, the trait `Printable` occurs as an object type in both the type signature of `print`,
 and the cast expression in `main`.
@@ -3266,7 +3235,7 @@ and the cast expression in `main`.
 
 Within the body of an item that has type parameter declarations, the names of its type parameters are types:
 
-~~~~~~~
+~~~
 fn map<A: Clone, B: Clone>(f: &fn(A) -> B, xs: &[A]) -> ~[B] {
     if xs.len() == 0 {
        return ~[];
@@ -3275,7 +3244,7 @@ fn map<A: Clone, B: Clone>(f: &fn(A) -> B, xs: &[A]) -> ~[B] {
     let rest: ~[B] = map(f, xs.slice(1, xs.len()));
     return ~[first] + rest;
 }
-~~~~~~~
+~~~
 
 Here, `first` has type `B`, referring to `map`'s `B` type parameter;
 and `rest` has type `~[B]`, a vector type with element type `B`.
@@ -3286,7 +3255,7 @@ The special type `self` has a meaning within methods inside an
 impl item. It refers to the type of the implicit `self` argument. For
 example, in:
 
-~~~~~~~~
+~~~
 trait Printable {
   fn make_string(&self) -> ~str;
 }
@@ -3296,7 +3265,7 @@ impl Printable for ~str {
         (*self).clone()
     }
 }
-~~~~~~~~
+~~~
 
 `self` refers to the value of type `~str` that is the receiver for a
 call to the method `make_string`.
@@ -3374,7 +3343,6 @@ the heap may be shared between tasks, mutable portions may not.
 Allocations in the stack consist of *slots*, and allocations in the heap
 consist of *boxes*.
 
-
 ### Memory allocation and lifetime
 
 The _items_ of a program are those functions, modules and types
@@ -3417,7 +3385,6 @@ unmanaged kinds of data.
 When a task finishes, its stack is necessarily empty and it therefore has no
 references to any boxes; the remainder of its heap is immediately freed.
 
-
 ### Memory slots
 
 A task's stack contains slots.
@@ -3444,7 +3411,6 @@ state. Subsequent statements within a function may or may not initialize the
 local variables. Local variables can be used only after they have been
 initialized; this is enforced by the compiler.
 
-
 ### Memory boxes
 
 A _box_ is a reference to a heap allocation holding another value. There
@@ -3464,19 +3430,19 @@ Owned box values exist in 1:1 correspondence with their heap allocation.
 An example of constructing one managed box type and value, and one owned box
 type and value:
 
-~~~~~~~~
+~~~
 let x: @int = @10;
 let x: ~int = ~10;
-~~~~~~~~
+~~~
 
 Some operations (such as field selection) implicitly dereference boxes. An
 example of an _implicit dereference_ operation performed on box values:
 
-~~~~~~~~
+~~~
 struct Foo { y: int }
 let x = @Foo{y: 10};
 assert!(x.y == 10);
-~~~~~~~~
+~~~
 
 Other operations act on box values as single-word-sized address values. For
 these operations, to access the value held in the box requires an explicit
@@ -3487,10 +3453,9 @@ operations are:
 * copying box values (`x = y`)
 * passing box values to functions (`f(x,y)`)
 
-
 An example of an explicit-dereference operation performed on box values:
 
-~~~~~~~~
+~~~
 fn takes_boxed(b: @int) {
 }
 
@@ -3502,7 +3467,7 @@ fn main() {
     takes_boxed(x);
     takes_unboxed(*x);
 }
-~~~~~~~~
+~~~
 
 ## Tasks
 
@@ -3529,7 +3494,6 @@ in contexts where threads are too resource-intensive to use in large number.
 The cost of threads varies substantially per operating system, and is sometimes quite low,
 so this flexibility is not always worth exploiting.]
 
-
 ### Communication between tasks
 
 Rust tasks are isolated and generally unable to interfere with one another's memory directly,
@@ -3548,7 +3512,6 @@ When such facilities carry values, the values are restricted to the [`Send` type
 Restricting communication interfaces to this kind ensures that no borrowed or managed pointers move between tasks.
 Thus access to an entire data structure can be mediated through its owning "root" value;
 no further locking or copying is required to avoid data races within the substructure of such a value.
-
 
 ### Task lifecycle
 
@@ -3593,7 +3556,6 @@ A task in the *dead* state cannot transition to other states; it exists
 only to have its termination status inspected by other tasks, and/or to await
 reclamation when the last reference to it drops.
 
-
 ### Task scheduling
 
 The currently scheduled task is given a finite *time slice* in which to
@@ -3604,9 +3566,7 @@ An executing task can yield control at any time, by making a library call to
 `std::task::yield`, which deschedules it immediately. Entering any other
 non-executing state (blocked, dead) similarly deschedules the task.
 
-
 # Runtime services, linkage and debugging
-
 
 The Rust _runtime_ is a relatively compact collection of C++ and Rust code
 that provides fundamental services and datatypes to all Rust tasks at
@@ -3637,8 +3597,6 @@ channels, tasks).
 Support for other built-in types such as simple types, tuples, records, and
 enums is open-coded by the Rust compiler.
 
-
-
 ### Task scheduling and communication
 
 The runtime provides code to manage inter-task communication.  This includes
@@ -3646,7 +3604,6 @@ the system of task-lifecycle state transitions depending on the contents of
 queues, as well as code to copy values between queues and their recipients and
 to serialize values for transmission over operating-system inter-process
 communication facilities.
-
 
 ### Logging system
 
@@ -3710,23 +3667,23 @@ of runtime logging modules follows.
 Rust provides several macros to log information. Here's a simple Rust program
 that demonstrates all four of them:
 
-```rust
+~~~
 fn main() {
     error2!("This is an error log")
     warn2!("This is a warn log")
     info2!("this is an info log")
     debug2!("This is a debug log")
 }
-```
+~~~
 
 These four log levels correspond to levels 1-4, as controlled by `RUST_LOG`:
 
-```bash
+~~~ {.bash}
 $ RUST_LOG=rust=3 ./rust
 This is an error log
 This is a warn log
 this is an info log
-```
+~~~
 
 # Appendix: Rationales and design tradeoffs
 
@@ -3736,7 +3693,6 @@ this is an info log
 
 ## Influences
 
-
 >  The essential problem that must be solved in making a fault-tolerant
 >  software system is therefore that of fault-isolation. Different programmers
 >  will write different modules, some modules will be correct, others will have
@@ -3744,7 +3700,6 @@ this is an info log
 >  behaviour of a module which does not have any errors.
 >
 >  &mdash; Joe Armstrong
-
 
 >  In our approach, all data is private to some process, and processes can
 >  only communicate through communications channels. *Security*, as used
@@ -3755,8 +3710,7 @@ this is an info log
 >  in isolation can be guaranteed to hold when that module is embedded in a
 >  system [...]
 >
->  &mdash;  Robert Strom and Shaula Yemini
-
+>  &mdash; Robert Strom and Shaula Yemini
 
 >  Concurrent and applicative programming complement each other. The
 >  ability to send messages on channels provides I/O without side effects,
@@ -3764,7 +3718,6 @@ this is an info log
 >  colliding.
 >
 >  &mdash; Rob Pike
-
 
 Rust is not a particularly original language. It may however appear unusual
 by contemporary standards, as its design elements are drawn from a number of
